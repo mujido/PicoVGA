@@ -1,5 +1,6 @@
 @echo off
 
+<<<<<<< Updated upstream
 RaspPicoRle monoscope_256x192.bmp   monoscope_256x192.cpp   Monoscope256x192  -1
 RaspPicoRle monoscope_300x240.bmp   monoscope_300x240.cpp   Monoscope300x240  -1
 RaspPicoRle monoscope_320x200.bmp   monoscope_320x200.cpp   Monoscope320x200  -1
@@ -26,3 +27,9 @@ RaspPicoRle monoscope_1152x864.bmp  monoscope_1152x864.cpp  Monoscope1152x864 -1
 RaspPicoRle monoscope_1280x960.bmp  monoscope_1280x960.cpp  Monoscope1280x960 -1
 RaspPicoRle monoscope_1360x768.bmp  monoscope_1360x768.cpp  Monoscope1360x768 -1
 RaspPicoRle pi-monoscope.bmp        pi-monoscope.cpp        PiMonoscope -1
+=======
+RaspPicoRle pattern1.bmp   pattern1.cpp   Pattern1 -1
+RaspPicoRle pattern2.bmp   pattern2.cpp   Pattern2 -1
+RaspPicoRle pattern3.bmp   pattern3.cpp   Pattern3 -1
+RaspPicoRle pattern4.bmp   pattern4.cpp   Pattern4 -1
+>>>>>>> Stashed changes

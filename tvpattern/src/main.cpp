@@ -56,9 +56,6 @@ typedef struct {
 	int		width;		// width
 	int		height;		// height
 	int		full;		// full width
-	int		imgsize;	// image size
-	const u16*	rows;		// pointer to rows
-	const u8*	img;		// pointer to image
 	const sVideo*	video;		// videomode timings
 	Bool		dbly;		// double y
 } sMono;
@@ -66,52 +63,24 @@ typedef struct {
 // available videomodes
 sMono Mono[] = {
 // TV PALi
-	{ 640, 480, 720, count_of(Monoscope640x480), Monoscope640x480_rows, Monoscope640x480, &VideoPAL, False }, // 4:3
-	{ 720, 576, 720, count_of(Monoscope720x576), Monoscope720x576_rows, Monoscope720x576, &VideoPAL, False }, // 5:4
-	{ 768, 576, 768, count_of(Monoscope768x576), Monoscope768x576_rows, Monoscope768x576, &VideoPAL, False }, // 4:3
-	{ 1024, 576, 1024, count_of(Monoscope1024x576), Monoscope1024x576_rows, Monoscope1024x576, &VideoPAL, False }, // 16:9
-// TV PALp
-	{ 256, 192, 360, count_of(Monoscope256x192), Monoscope256x192_rows, Monoscope256x192, &VideoPALp, False }, // 4:3
-	{ 320, 240, 360, count_of(Monoscope320x240), Monoscope320x240_rows, Monoscope320x240, &VideoPALp, False }, // 4:3
-	{ 360, 288, 360, count_of(Monoscope360x288), Monoscope360x288_rows, Monoscope360x288, &VideoPALp, False }, // 5:4
-	{ 384, 288, 384, count_of(Monoscope384x288), Monoscope384x288_rows, Monoscope384x288, &VideoPALp, False }, // 4:3
-	{ 512, 288, 512, count_of(Monoscope512x288), Monoscope512x288_rows, Monoscope512x288, &VideoPALp, False }, // 16:9
-// TV NTSCi
-	{ 640, 480, 640, count_of(Monoscope640x480), Monoscope640x480_rows, Monoscope640x480, &VideoNTSC, False }, // 4:3
-	{ 600, 480, 600, count_of(Monoscope600x480), Monoscope600x480_rows, Monoscope600x480, &VideoNTSC, False }, // 5:4
-	{ 848, 480, 848, count_of(Monoscope848x480), Monoscope848x480_rows, Monoscope848x480, &VideoNTSC, False }, // 16:9
-// TV NTSCp
-	{ 256, 192, 320, count_of(Monoscope256x192), Monoscope256x192_rows, Monoscope256x192, &VideoNTSCp, False }, // 4:3
-	{ 320, 240, 320, count_of(Monoscope320x240), Monoscope320x240_rows, Monoscope320x240, &VideoNTSCp, False }, // 4:3
-	{ 300, 240, 300, count_of(Monoscope300x240), Monoscope300x240_rows, Monoscope300x240, &VideoNTSCp, False }, // 5:4
-	{ 424, 240, 424, count_of(Monoscope424x240), Monoscope424x240_rows, Monoscope424x240, &VideoNTSCp, False }, // 16:9
-// EGA
-	{ 320, 200, 320, count_of(Monoscope320x200), Monoscope320x200_rows, Monoscope320x200, &VideoEGA, True }, // 16:10
-	{ 640, 400, 640, count_of(Monoscope640x400), Monoscope640x400_rows, Monoscope640x400, &VideoEGA, False }, // 16:10
-	{ 500, 400, 500, count_of(Monoscope500x400), Monoscope500x400_rows, Monoscope500x400, &VideoEGA, False }, // 5:4
-
-	{ 528, 400, 528, count_of(Monoscope528x400), Monoscope528x400_rows, Monoscope528x400, &VideoEGA, False }, // 4:3
-	{ 704, 400, 704, count_of(Monoscope704x400), Monoscope704x400_rows, Monoscope704x400, &VideoEGA, False }, // 16:9
-// VGA
-	{ 320, 240, 320, count_of(Monoscope320x240), Monoscope320x240_rows, Monoscope320x240, &VideoVGA, True }, // 4:3
-	{ 640, 480, 640, count_of(Monoscope640x480), Monoscope640x480_rows, Monoscope640x480, &VideoVGA, False }, // 4:3
-	{ 848, 480, 848, count_of(Monoscope848x480), Monoscope848x480_rows, Monoscope848x480, &VideoVGA, False }, // 16:9
-// SVGA
-	{ 400, 300, 400, count_of(Monoscope400x300), Monoscope400x300_rows, Monoscope400x300, &VideoSVGA, True }, // 4:3
-	{ 800, 600, 800, count_of(Monoscope800x600), Monoscope800x600_rows, Monoscope800x600, &VideoSVGA, False }, // 4:3
-	{ 1064, 600, 1064, count_of(Monoscope1064x600), Monoscope1064x600_rows, Monoscope1064x600, &VideoSVGA, False }, // 16:9
-// XGA
-	{ 1024, 768, 1024, count_of(Monoscope1024x768), Monoscope1024x768_rows, Monoscope1024x768, &VideoXGA, False }, // 4:3
-	{ 1360, 768, 1360, count_of(Monoscope1360x768), Monoscope1360x768_rows, Monoscope1360x768, &VideoXGA, False }, // 16:9
-// VESA
-	{ 1152, 864, 1152, count_of(Monoscope1152x864), Monoscope1152x864_rows, Monoscope1152x864, &VideoVESA, False }, // 4:3
-// HD
-	{ 1280, 960, 1280, count_of(Monoscope1280x960), Monoscope1280x960_rows, Monoscope1280x960, &VideoHD, False }, // 4:3
-// PI
-	{ 1024, 768, 1024, count_of(PiMonoscope), PiMonoscope_rows, PiMonoscope, &VideoXGA, False }, // 4:3
+	{ 320, 240, 320, &VideoNTSCp, False }, // 4:3
 };
 
 #define MONO_NUM count_of(Mono) // number of videomodes
+
+struct ImageInfo
+{
+	int		imgsize;	// image size
+	const u16*	rows;		// pointer to rows
+	const u8*	img;		// pointer to image
+};
+
+ImageInfo images[] = {
+	{ count_of(Pattern1), Pattern1_rows, Pattern1 },
+	{ count_of(Pattern2), Pattern2_rows, Pattern2 },
+	{ count_of(Pattern3), Pattern3_rows, Pattern3 },
+	{ count_of(Pattern4), Pattern4_rows, Pattern4 },
+};
 
 // prepare videomode configuration
 void MonoCfg(int inx)
@@ -137,6 +106,8 @@ void MonoInit(int inx)
 	MonoSel = inx;
 	MonoCfg(inx);
 
+	const ImageInfo& image = images[0];
+
 	// initialize base layer 0 to simple color (will be not visible)
 	ScreenClear(pScreen);
 	sStrip* t = ScreenAddStrip(pScreen, Vmode.height);
@@ -145,8 +116,8 @@ void MonoInit(int inx)
 
 	// copy image into RAM buffer (flash is not fast enough)
 	sMono* mono = &Mono[inx];
-	memcpy(Rows, mono->rows, (mono->height+1)*2);
-	memcpy(Img, mono->img, mono->imgsize);
+	memcpy(Rows, image.rows, (mono->height+1)*2);
+	memcpy(Img, image.img, image.imgsize);
 
 	// setup layer 1 with RLE image of the monoscope
 	LayerSetup(IMG_LAYER, Img, &Vmode, mono->width, mono->height, 0, Rows);
@@ -260,30 +231,11 @@ int main()
 	multicore_launch_core1(VgaCore);
 
 	// run default video mode VGA 640x480
-	MonoInit(22);
+	MonoInit(0);
 
 	// initialize stdio
 	stdio_init_all();
 
 	while (true)
-	{
-		// print list
-		MonoList();
-
-		// get key
-		c = getchar();
-		if ((c >= 'a') && (c <= 'z')) c -= 32;
-		if (c < 32)
-			printf("0x%02X\n", c);
-		else
-			printf("%c\n", c);
-
-		// set required videomode
-		if ((c >= '0') && (c <= '9'))
-			MonoInit(c - '0');
-		else if ((c >= 'A') && (c <= 'A'+MONO_NUM-11))
-			MonoInit(c - 'A' + 10);
-		else
-			printf("\nInvalid key command\n");
-	}
+		;
 }

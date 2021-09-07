@@ -11,32 +11,10 @@ ASRC +=
 CSRC +=
 
 # C++ source files
-SRC += img/monoscope_256x192.cpp
-SRC += img/monoscope_300x240.cpp
-SRC += img/monoscope_320x200.cpp
-SRC += img/monoscope_320x240.cpp
-SRC += img/monoscope_360x288.cpp
-SRC += img/monoscope_384x288.cpp
-SRC += img/monoscope_424x240.cpp
-SRC += img/monoscope_400x300.cpp
-SRC += img/monoscope_500x400.cpp
-SRC += img/monoscope_512x288.cpp
-SRC += img/monoscope_528x400.cpp
-SRC += img/monoscope_600x480.cpp
-SRC += img/monoscope_640x400.cpp
-SRC += img/monoscope_640x480.cpp
-SRC += img/monoscope_704x400.cpp
-SRC += img/monoscope_720x576.cpp
-SRC += img/monoscope_768x576.cpp
-SRC += img/monoscope_800x600.cpp
-SRC += img/monoscope_848x480.cpp
-SRC += img/monoscope_1024x576.cpp
-SRC += img/monoscope_1024x768.cpp
-SRC += img/monoscope_1064x600.cpp
-SRC += img/monoscope_1152x864.cpp
-SRC += img/monoscope_1360x768.cpp
-SRC += img/monoscope_1280x960.cpp
-SRC += img/pi-monoscope.cpp
+SRC += img/pattern1.cpp
+SRC += img/pattern2.cpp
+SRC += img/pattern3.cpp
+SRC += img/pattern4.cpp
 
 SRC += src/main.cpp
 
