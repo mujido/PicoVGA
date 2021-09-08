@@ -86,6 +86,7 @@ void DisplayImage(const ImageInfo& image, const sMono& mono)
 {
 	LayerOff(IMG_LAYER);
 
+	// copy image into RAM buffer (flash is not fast enough)
 	memcpy(Rows, image.rows, (mono.height+1)*2);
 	memcpy(Img, image.img, image.imgsize);
 
@@ -123,9 +124,6 @@ void MonoInit(int inx)
 	sStrip* t = ScreenAddStrip(pScreen, Vmode.height);
 	sSegm* g = ScreenAddSegm(t, Vmode.width);
 	ScreenSegmColor(g, 0xff00ff00, 0x00ff00ff);
-
-	// copy image into RAM buffer (flash is not fast enough)
-	sMono* mono = &Mono[inx];
 
 	// initialize system clock
 	if (clock_get_hz(clk_sys) != Vmode.freq*1000)
