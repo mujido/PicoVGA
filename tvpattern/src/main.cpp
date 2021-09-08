@@ -46,6 +46,9 @@
 #define PI_MONOSCOPE 31
 
 #include "include.h"
+#include <pico/time.h>
+#include <hardware/gpio.h>
+#include <array>
 
 u16 Rows[962];	// RLE rows
 u8 Img[180000] __attribute__ ((aligned(4))); // RLE image
@@ -224,6 +227,38 @@ void MonoList()
 	printf("Press key: ");
 }
 
+// constexpr unsigned BUTTON_CHECK_INTERVAL_MS = 5;
+// constexpr unsigned BUTTON_PRESS_DURATION_MS = 10;
+// constexpr unsigned BUTTON_RELEASE_DURATION_MS = 50;
+// constexpr unsigned BUTTON_CHECK_COUNT = std::max(BUTTON_PRESS_DURATION_MS, BUTTON_RELEASE_DURATION_MS) / BUTTON_CHECK_INTERVAL_MS;
+constexpr unsigned BUTTON_CHECK_COUNT = 10;
+constexpr unsigned BUTTON_GPIO = 22;
+
+static std::array<uint32_t, BUTTON_CHECK_COUNT> buttonStates = {0};
+static unsigned buttonStatesIndex = 0;
+
+bool key_debounce_callback(repeating_timer_t*)
+{
+	uint32_t allButtons = gpio_get_all();
+	buttonStates[buttonStatesIndex] = allButtons;
+	buttonStatesIndex++;
+
+	if (buttonStatesIndex >= buttonStates.size())
+		buttonStatesIndex = 0;
+
+	return true;
+}
+
+uint32_t get_debounced_key_state()
+{
+	uint32_t debounced = std::numeric_limits<uint32_t>::max();
+
+	for (int i = buttonStates.size(); i >= 0; --i)
+		debounced &= buttonStates[i];
+
+	return debounced;	
+}
+
 int main()
 {
 	constexpr int modeIndex = 0;
@@ -237,7 +272,15 @@ int main()
 	// initialize stdio
 	stdio_init_all();
 
+	gpio_init(BUTTON_GPIO);
+	gpio_set_dir(BUTTON_GPIO, false);
+	gpio_pull_down(BUTTON_GPIO);
+
+	repeating_timer_t debounce_timer;
+	add_repeating_timer_us(-2'000, key_debounce_callback, nullptr, &debounce_timer);
+
 	unsigned imageIdx = 0;
+
 	while (true)
 	{
 		DisplayImage(images[imageIdx], Mono[modeIndex]);
