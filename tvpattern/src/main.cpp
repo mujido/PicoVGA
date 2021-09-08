@@ -49,6 +49,7 @@
 #include <pico/time.h>
 #include <hardware/gpio.h>
 #include <array>
+#include <atomic>
 
 u16 Rows[962];	// RLE rows
 u8 Img[180000] __attribute__ ((aligned(4))); // RLE image
@@ -234,13 +235,13 @@ void MonoList()
 constexpr unsigned BUTTON_CHECK_COUNT = 10;
 constexpr unsigned BUTTON_GPIO = 22;
 
-static std::array<uint32_t, BUTTON_CHECK_COUNT> buttonStates = {0};
+static std::array<std::atomic<uint32_t>, BUTTON_CHECK_COUNT> buttonStates = {0};
 static unsigned buttonStatesIndex = 0;
 
 bool key_debounce_callback(repeating_timer_t*)
 {
 	uint32_t allButtons = gpio_get_all();
-	buttonStates[buttonStatesIndex] = allButtons;
+	buttonStates[buttonStatesIndex].store(allButtons, std::memory_order_relaxed);
 	buttonStatesIndex++;
 
 	if (buttonStatesIndex >= buttonStates.size())
@@ -254,7 +255,7 @@ uint32_t get_debounced_key_state()
 	uint32_t debounced = std::numeric_limits<uint32_t>::max();
 
 	for (int i = buttonStates.size(); i >= 0; --i)
-		debounced &= buttonStates[i];
+		debounced &= buttonStates[i].load(std::memory_order_acquire);
 
 	return debounced;	
 }
