@@ -82,6 +82,18 @@ ImageInfo images[] = {
 	{ count_of(Pattern4), Pattern4_rows, Pattern4 },
 };
 
+void DisplayImage(const ImageInfo& image, const sMono& mono)
+{
+	LayerOff(IMG_LAYER);
+
+	memcpy(Rows, image.rows, (mono.height+1)*2);
+	memcpy(Img, image.img, image.imgsize);
+
+	// setup layer 1 with RLE image of the monoscope
+	LayerSetup(IMG_LAYER, Img, &Vmode, mono.width, mono.height, 0, Rows);
+	LayerOn(IMG_LAYER);
+}
+
 // prepare videomode configuration
 void MonoCfg(int inx)
 {
@@ -106,8 +118,6 @@ void MonoInit(int inx)
 	MonoSel = inx;
 	MonoCfg(inx);
 
-	const ImageInfo& image = images[0];
-
 	// initialize base layer 0 to simple color (will be not visible)
 	ScreenClear(pScreen);
 	sStrip* t = ScreenAddStrip(pScreen, Vmode.height);
@@ -116,12 +126,6 @@ void MonoInit(int inx)
 
 	// copy image into RAM buffer (flash is not fast enough)
 	sMono* mono = &Mono[inx];
-	memcpy(Rows, image.rows, (mono->height+1)*2);
-	memcpy(Img, image.img, image.imgsize);
-
-	// setup layer 1 with RLE image of the monoscope
-	LayerSetup(IMG_LAYER, Img, &Vmode, mono->width, mono->height, 0, Rows);
-	LayerOn(IMG_LAYER);
 
 	// initialize system clock
 	if (clock_get_hz(clk_sys) != Vmode.freq*1000)
@@ -224,18 +228,25 @@ void MonoList()
 
 int main()
 {
-	char c;
-	int i;
+	constexpr int modeIndex = 0;
 
 	// run VGA core
 	multicore_launch_core1(VgaCore);
 
 	// run default video mode VGA 640x480
-	MonoInit(0);
+	MonoInit(modeIndex);
 
 	// initialize stdio
 	stdio_init_all();
 
+	unsigned imageIdx = 0;
 	while (true)
-		;
+	{
+		DisplayImage(images[imageIdx], Mono[modeIndex]);
+
+		if (++imageIdx >= count_of(images))
+			imageIdx = 0;
+		
+		sleep_ms(1000);
+	}
 }
