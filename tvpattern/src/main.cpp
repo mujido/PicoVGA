@@ -49,6 +49,8 @@
 #include <pico/time.h>
 #include <hardware/gpio.h>
 #include <array>
+#include <bitset>
+#include <initializer_list>
 
 u16 Rows[962];	// RLE rows
 u8 Img[180000] __attribute__ ((aligned(4))); // RLE image
@@ -232,12 +234,15 @@ void MonoList()
 // constexpr unsigned BUTTON_RELEASE_DURATION_MS = 50;
 // constexpr unsigned BUTTON_CHECK_COUNT = std::max(BUTTON_PRESS_DURATION_MS, BUTTON_RELEASE_DURATION_MS) / BUTTON_CHECK_INTERVAL_MS;
 constexpr unsigned BUTTON_CHECK_COUNT = 10;
-constexpr unsigned BUTTON_GPIO = 22;
+constexpr unsigned BUTTON_NEXT = 26;
+constexpr unsigned BUTTON_PREV = 27;
+
+using ButtonState = std::bitset<32>;
 
 static std::array<uint32_t, BUTTON_CHECK_COUNT> buttonStates = {0};
 static unsigned buttonStatesIndex = 0;
 
-bool key_debounce_callback(repeating_timer_t*)
+bool KeyDebounceTimerCallback(repeating_timer_t*)
 {
 	uint32_t allButtons = gpio_get_all();
 	buttonStates[buttonStatesIndex] = allButtons;
@@ -249,19 +254,45 @@ bool key_debounce_callback(repeating_timer_t*)
 	return true;
 }
 
-uint32_t get_debounced_key_state()
+ButtonState GetDebouncedButtonState()
 {
-	uint32_t debounced = ~static_cast<uint32_t>(0);
+	ButtonState debounced;
+	debounced.set();
 
 	for (auto val : buttonStates)
-		debounced &= val;
+		debounced &= ButtonState(val);
 
-	return debounced;	
+	// Invert state because buttons are active-low
+	return ~debounced;	
+}
+
+constexpr ButtonState MakeButtonMask(const std::initializer_list<unsigned>& buttons)
+{
+	unsigned mask = 0;
+	
+	for (auto btn : buttons)
+		mask |= 1 << btn;
+
+	return mask;
+}
+
+void InitButtons()
+{
+	for (auto btn : { BUTTON_NEXT, BUTTON_PREV })
+	{
+		gpio_init(btn);
+		gpio_set_dir(btn, false);
+		gpio_pull_up(btn);
+	}
+
+	static repeating_timer_t debounce_timer;
+	add_repeating_timer_us(-2'000, KeyDebounceTimerCallback, nullptr, &debounce_timer);
 }
 
 int main()
 {
 	constexpr int modeIndex = 0;
+	constexpr auto buttonMask = MakeButtonMask({BUTTON_NEXT, BUTTON_PREV});
 
 	// run VGA core
 	multicore_launch_core1(VgaCore);
@@ -272,22 +303,34 @@ int main()
 	// initialize stdio
 	stdio_init_all();
 
-	gpio_init(BUTTON_GPIO);
-	gpio_set_dir(BUTTON_GPIO, false);
-	gpio_pull_down(BUTTON_GPIO);
+	InitButtons();
 
-	repeating_timer_t debounce_timer;
-	add_repeating_timer_us(-2'000, key_debounce_callback, nullptr, &debounce_timer);
-
+	// Display starting image
 	unsigned imageIdx = 0;
+	DisplayImage(images[imageIdx], Mono[modeIndex]);
+
+	ButtonState prevButtonState;
 
 	while (true)
 	{
-		DisplayImage(images[imageIdx], Mono[modeIndex]);
+		auto newButtonState = GetDebouncedButtonState();
+		newButtonState &= buttonMask;
 
-		if (++imageIdx >= count_of(images))
-			imageIdx = 0;
-		
-		sleep_ms(1000);
+		if ((newButtonState ^ prevButtonState).any())
+		{
+			if (newButtonState.test(BUTTON_NEXT))
+			{
+				++imageIdx;
+				DisplayImage(images[imageIdx], Mono[modeIndex]);
+			}
+
+			if (newButtonState.test(BUTTON_PREV))
+			{
+				--imageIdx;
+				DisplayImage(images[imageIdx], Mono[modeIndex]);
+			}
+		}
+
+		__wfe();
 	}
 }
