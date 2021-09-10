@@ -260,10 +260,12 @@ ButtonState GetDebouncedButtonState()
 	debounced.set();
 
 	for (auto val : buttonStates)
-		debounced &= ButtonState(val);
+	{
+		// Invert state because buttons are active-low
+		debounced &= ~val;
+	}
 
-	// Invert state because buttons are active-low
-	return ~debounced;	
+	return debounced;	
 }
 
 constexpr ButtonState MakeButtonMask(const std::initializer_list<unsigned>& buttons)
@@ -303,6 +305,13 @@ int main()
 	// initialize stdio
 	stdio_init_all();
 
+	for (auto led : {16, 17})
+	{
+		gpio_init(led);
+		gpio_set_dir(led, true);
+		gpio_put(led, false);
+	}
+
 	InitButtons();
 
 	// Display starting image
@@ -316,21 +325,40 @@ int main()
 		auto newButtonState = GetDebouncedButtonState();
 		newButtonState &= buttonMask;
 
-		if ((newButtonState ^ prevButtonState).any())
+		auto changed = newButtonState ^ prevButtonState;
+
+		if (changed.test(BUTTON_NEXT))
 		{
 			if (newButtonState.test(BUTTON_NEXT))
 			{
 				++imageIdx;
-				DisplayImage(images[imageIdx], Mono[modeIndex]);
-			}
+				if (imageIdx >= count_of(images))
+					imageIdx = 0;
 
-			if (newButtonState.test(BUTTON_PREV))
-			{
-				--imageIdx;
 				DisplayImage(images[imageIdx], Mono[modeIndex]);
+				gpio_put(16, true);
 			}
+			else
+				gpio_put(16, false);
 		}
 
+		if (changed.test(BUTTON_PREV))
+		{
+			if (newButtonState.test(BUTTON_PREV))
+			{
+				if (imageIdx > 0)
+					imageIdx--;
+				else
+					imageIdx = count_of(images) - 1;
+
+				DisplayImage(images[imageIdx], Mono[modeIndex]);
+				gpio_put(17, true);
+			}
+			else
+				gpio_put(17, false);
+		}
+
+		prevButtonState = newButtonState;
 		__wfe();
 	}
 }
