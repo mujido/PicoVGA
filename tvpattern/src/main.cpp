@@ -14,15 +14,12 @@
 01 | VGA    |  320 |  240 | 4:3 | 31469 |  60 | 126000
 */
 
-#define PI_MONOSCOPE 31
-
 #include "include.h"
 #include "buttons.h"
 #include <initializer_list>
 
 u16 Rows[962];	// RLE rows
 u8 Img[180000] __attribute__ ((aligned(4))); // RLE image
-int MonoSel = 22; // selected videomode
 
 // monoscope descriptor
 typedef struct {
@@ -89,7 +86,6 @@ void MonoInit(int inx)
 	VgaInitReq(NULL);
 
 	// prepare videomode configuration
-	MonoSel = inx;
 	MonoCfg(inx);
 
 	// initialize base layer 0 to simple color (will be not visible)
@@ -109,92 +105,6 @@ void MonoInit(int inx)
 
 	// initialize videomode
 	VgaInitReq(&Vmode);
-}
-
-// display list of available videomodes
-void MonoList()
-{
-	printf("\n");
-
-	// print header
-	printf(" n | key | timing | Hres | Vres |ratio|  scan | FPS | sysclk\n");
-	printf("---+-----+--------+------+------+-----+-------+-----+-------\n");
-
-	// print modes
-	int i;
-	sMono* mono;
-	for (i = 0; i < MONO_NUM; i++)
-	{
-		mono = &Mono[i];
-
-		// prepare videomode configuration
-		MonoCfg(i);
-
-		// index
-		printf("%2u |", i);
-
-		// key
-		if (i < 10)
-			printf("  %c  |", i + '0');
-		else
-			printf("  %c  |", i - 10 + 'A');
-
-		// timing name
-		if (i == PI_MONOSCOPE)
-			printf(" PICO   |");
-		else
-			printf(" %s  |", Vmode.name);
-
-		// horizontal resolution
-		int w = Vmode.width;
-		printf("%5u |", w);
-
-		// vertical resolution
-		int h = Vmode.height;
-		printf("%5u |", h);
-
-		// ratio
-#define EPS 0.02f
-		float r = (float)w/h;
-		if (fabs(r - 4.0/3) < EPS)
-			printf(" 4:3 |");
-		else if (fabs(r - 5.0/4) < EPS)
-			printf(" 5:4 |");
-		else if (fabs(r - 3.0/2) < EPS)
-			printf(" 3:2 |");
-		else if (fabs(r - 10.0/9) < EPS)
-			printf("10:9 |");
-		else if (fabs(r - 16.0/9) < EPS)
-			printf("16:9 |");
-		else if (fabs(r - 8.0/5) < EPS)
-			printf("16:10|");
-		else
-			printf("     |");
-
-		// horizontal frequency
-		float f = Vmode.freq*1000.0f; // system frequency at Hz
-		float k = f/Vmode.div; // frequency of state machine clock at Hz
-		int hor = (int)(k/Vmode.htot + 0.5f); // horizontal frequency
-		printf("%6u |", hor);
-
-		// vertical frequency
-		int vert = (int)(k/Vmode.htot/Vmode.vtot + 0.5f); // vertical frequency
-		printf("%4u |", vert);
-
-		// system frequency 
-		printf("%7u", Vmode.freq);
-
-		// current videomode
-		if (i == MonoSel) printf(" *");
-
-		// end of line
-		printf("\n");
-	}
-
-	// print current frequency
-	uint hz = clock_get_hz(clk_sys);
-	printf("current mode: %u, current sysclk: %u kHz\n", MonoSel, hz/1000);
-	printf("Press key: ");
 }
 
 int main()
@@ -261,6 +171,8 @@ int main()
 		}
 
 		prevButtonState = newButtonState;
+
+		// Pause core until an event/interrupt occurs.
 		__wfe();
 	}
 }
