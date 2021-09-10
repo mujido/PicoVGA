@@ -12,5 +12,4 @@ type program.siz
 goto end
 
 :err
-pause ERROR!
 :end
