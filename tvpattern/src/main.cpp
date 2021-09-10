@@ -17,10 +17,7 @@
 #define PI_MONOSCOPE 31
 
 #include "include.h"
-#include <pico/time.h>
-#include <hardware/gpio.h>
-#include <array>
-#include <bitset>
+#include "buttons.h"
 #include <initializer_list>
 
 u16 Rows[962];	// RLE rows
@@ -200,72 +197,8 @@ void MonoList()
 	printf("Press key: ");
 }
 
-// constexpr unsigned BUTTON_CHECK_INTERVAL_MS = 5;
-// constexpr unsigned BUTTON_PRESS_DURATION_MS = 10;
-// constexpr unsigned BUTTON_RELEASE_DURATION_MS = 50;
-// constexpr unsigned BUTTON_CHECK_COUNT = std::max(BUTTON_PRESS_DURATION_MS, BUTTON_RELEASE_DURATION_MS) / BUTTON_CHECK_INTERVAL_MS;
-constexpr unsigned BUTTON_CHECK_COUNT = 10;
-constexpr unsigned BUTTON_NEXT = 26;
-constexpr unsigned BUTTON_PREV = 27;
-
-using ButtonState = std::bitset<32>;
-
-static std::array<uint32_t, BUTTON_CHECK_COUNT> buttonStates = {0};
-static unsigned buttonStatesIndex = 0;
-
-bool KeyDebounceTimerCallback(repeating_timer_t*)
-{
-	uint32_t allButtons = gpio_get_all();
-	buttonStates[buttonStatesIndex] = allButtons;
-	buttonStatesIndex++;
-
-	if (buttonStatesIndex >= buttonStates.size())
-		buttonStatesIndex = 0;
-
-	return true;
-}
-
-ButtonState GetDebouncedButtonState()
-{
-	ButtonState debounced;
-	debounced.set();
-
-	for (auto val : buttonStates)
-	{
-		// Invert state because buttons are active-low
-		debounced &= ~val;
-	}
-
-	return debounced;	
-}
-
-constexpr ButtonState MakeButtonMask(const std::initializer_list<unsigned>& buttons)
-{
-	unsigned mask = 0;
-	
-	for (auto btn : buttons)
-		mask |= 1 << btn;
-
-	return mask;
-}
-
-void InitButtons()
-{
-	for (auto btn : { BUTTON_NEXT, BUTTON_PREV })
-	{
-		gpio_init(btn);
-		gpio_set_dir(btn, false);
-		gpio_pull_up(btn);
-	}
-
-	static repeating_timer_t debounce_timer;
-	add_repeating_timer_us(-2'000, KeyDebounceTimerCallback, nullptr, &debounce_timer);
-}
-
 int main()
 {
-	constexpr auto buttonMask = MakeButtonMask({BUTTON_NEXT, BUTTON_PREV});
-
 	// run VGA core
 	multicore_launch_core1(VgaCore);
 
@@ -283,7 +216,7 @@ int main()
 		gpio_put(led, false);
 	}
 
-	InitButtons();
+	InitButtons({BUTTON_PREV, BUTTON_NEXT});
 
 	// Display starting image
 	unsigned imageIdx = 0;
@@ -294,8 +227,6 @@ int main()
 	while (true)
 	{
 		auto newButtonState = GetDebouncedButtonState();
-		newButtonState &= buttonMask;
-
 		auto changed = newButtonState ^ prevButtonState;
 
 		if (changed.test(BUTTON_NEXT))

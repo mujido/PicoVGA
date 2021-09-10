@@ -17,6 +17,7 @@ SRC += img/pattern3.cpp
 SRC += img/pattern4.cpp
 
 SRC += src/main.cpp
+SRC += src/buttons.cpp
 
 ##############################################################################
 # Configuration
