@@ -1,7 +1,13 @@
 @echo off
 rem Compilation...
 
-set PATH=..\_tools;C:\ARM10\bin;%PATH%
+if EXIST ..\arm_path.txt (
+    set /p ARM_PATH=<..\arm_path.txt
+) else (
+    set ARM_PATH=C:\ARM10\bin
+)
+
+set PATH=..\_tools;%ARM_PATH%;%PATH%
 
 call _c1.bat boot2_generic_03h
 if not exist boot2_generic_03h.bin goto end
