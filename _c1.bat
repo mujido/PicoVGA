@@ -1,7 +1,13 @@
 @echo off
 rem Compilation...
 
-set PATH=..\_tools;C:\ARM10\bin;%PATH%
+if EXIST ..\arm_path.txt (
+    set /p ARM_PATH=<..\arm_path.txt
+) else (
+    set ARM_PATH=C:\ARM10\bin
+)
+
+set PATH=..\_tools;%ARM_PATH%;%PATH%
 
 if exist program.uf2 del program.uf2
 make all
@@ -12,4 +18,5 @@ type program.siz
 goto end
 
 :err
+pause ERROR!
 :end
