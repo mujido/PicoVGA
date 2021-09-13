@@ -10,6 +10,8 @@
 
 #define IMG_LAYER	1	// overlapped layer with RLE image
 
+constexpr int DEFAULT_MODE_INDEX = 0;
+
 extern const u16 Pattern1_rows[241];
 extern const u8 Pattern1[3376] __attribute__ ((aligned(4)));
 
