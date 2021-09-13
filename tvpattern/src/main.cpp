@@ -119,13 +119,6 @@ int main()
 	// initialize stdio
 	stdio_init_all();
 
-	for (auto led : {16, 17})
-	{
-		gpio_init(led);
-		gpio_set_dir(led, true);
-		gpio_put(led, false);
-	}
-
 	InitButtons({BUTTON_PREV, BUTTON_NEXT});
 
 	// Display starting image
@@ -139,35 +132,24 @@ int main()
 		auto newButtonState = GetDebouncedButtonState();
 		auto changed = newButtonState ^ prevButtonState;
 
-		if (changed.test(BUTTON_NEXT))
+		if (changed.test(BUTTON_NEXT) && newButtonState.test(BUTTON_NEXT))
 		{
-			if (newButtonState.test(BUTTON_NEXT))
-			{
-				++imageIdx;
-				if (imageIdx >= count_of(images))
-					imageIdx = 0;
+			++imageIdx;
+			if (imageIdx >= count_of(images))
+				imageIdx = 0;
 
-				DisplayImage(images[imageIdx], Mono[modeIndex]);
-				gpio_put(16, true);
-			}
-			else
-				gpio_put(16, false);
+			DisplayImage(images[imageIdx], Mono[modeIndex]);
 		}
 
-		if (changed.test(BUTTON_PREV))
+		if (changed.test(BUTTON_PREV) && newButtonState.test(BUTTON_PREV))
 		{
-			if (newButtonState.test(BUTTON_PREV))
-			{
-				if (imageIdx > 0)
-					imageIdx--;
-				else
-					imageIdx = count_of(images) - 1;
-
-				DisplayImage(images[imageIdx], Mono[modeIndex]);
-				gpio_put(17, true);
-			}
+			if (imageIdx > 0)
+				imageIdx--;
 			else
-				gpio_put(17, false);
+				imageIdx = count_of(images) - 1;
+
+			DisplayImage(images[imageIdx], Mono[modeIndex]);
+			gpio_put(17, true);
 		}
 
 		prevButtonState = newButtonState;
