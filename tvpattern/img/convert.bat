@@ -1,6 +1,3 @@
 @echo off
 
-RaspPicoRle pattern1.bmp   pattern1.cpp   Pattern1 -1
-RaspPicoRle pattern2.bmp   pattern2.cpp   Pattern2 -1
-RaspPicoRle pattern3.bmp   pattern3.cpp   Pattern3 -1
-RaspPicoRle pattern4.bmp   pattern4.cpp   Pattern4 -1
+RaspPicoRle pattern4_256x224.bmp   pattern4_256x224.cpp   Pattern4_256x224 -1

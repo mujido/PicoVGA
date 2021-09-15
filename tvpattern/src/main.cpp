@@ -4,15 +4,6 @@
 //                                 Main code
 //
 // ****************************************************************************
-// Set videomodes from USB console and display monoscope.
-// To use UART console, edit "stdio output" in Makefile.
-
-/*
- n | timing | Hres | Vres |ratio|  scan | FPS | sysclk
----+--------+------+------+-----+-------+-----+-------
-00 | NTSCp  |  320 |  240 | 4:3 | 15734 |  60 | 122666
-01 | VGA    |  320 |  240 | 4:3 | 31469 |  60 | 126000
-*/
 
 #include "include.h"
 #include "buttons.h"
@@ -32,8 +23,7 @@ typedef struct {
 
 // available videomodes
 sMono Mono[] = {
-	{ 320, 240, 320, &VideoNTSCp, False }, // 4:3
-	{ 320, 240, 320, &VideoVGA,   True }, // 4:3
+	{ 256, 224, 320, &VideoNTSCp, False }, // 8:7
 };
 
 #define MONO_NUM count_of(Mono) // number of videomodes
@@ -46,10 +36,7 @@ struct ImageInfo
 };
 
 ImageInfo images[] = {
-	{ count_of(Pattern1), Pattern1_rows, Pattern1 },
-	{ count_of(Pattern2), Pattern2_rows, Pattern2 },
-	{ count_of(Pattern3), Pattern3_rows, Pattern3 },
-	{ count_of(Pattern4), Pattern4_rows, Pattern4 },
+	{ count_of(Pattern4_256x224), Pattern4_256x224_rows, Pattern4_256x224 },
 };
 
 void DisplayImage(const ImageInfo& image, const sMono& mono)
