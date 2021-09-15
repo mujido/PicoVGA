@@ -12,7 +12,7 @@
 
 constexpr int DEFAULT_MODE_INDEX = 0;
 
-extern const u16 Pattern4_256x224_rows[225];
-extern const u8 Pattern4_256x224[4928] __attribute__ ((aligned(4)));
+extern const u16 Pattern2_320x224_rows[225];
+extern const u8 Pattern2_320x224[46232] __attribute__ ((aligned(4)));
 
 #endif // _MAIN_H

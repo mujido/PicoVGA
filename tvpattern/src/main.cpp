@@ -23,7 +23,7 @@ typedef struct {
 
 // available videomodes
 sMono Mono[] = {
-	{ 256, 224, 320, &VideoNTSCp, False }, // 8:7
+	{ 320, 224, 320, &VideoNTSCp, False }, // 10:7
 };
 
 #define MONO_NUM count_of(Mono) // number of videomodes
@@ -36,7 +36,7 @@ struct ImageInfo
 };
 
 ImageInfo images[] = {
-	{ count_of(Pattern4_256x224), Pattern4_256x224_rows, Pattern4_256x224 },
+	{ count_of(Pattern2_320x224), Pattern2_320x224_rows, Pattern2_320x224 },
 };
 
 void DisplayImage(const ImageInfo& image, const sMono& mono)

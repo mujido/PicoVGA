@@ -11,7 +11,7 @@ ASRC +=
 CSRC +=
 
 # C++ source files
-SRC += img/pattern4_256x224.cpp
+SRC += img/pattern2_320x224.cpp
 
 SRC += src/main.cpp
 SRC += src/buttons.cpp
